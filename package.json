@@ -1,0 +1,27 @@
+{
+  "name": "wikimasterpoulet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "agent.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TroutFario/wikimasterpoulet.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/TroutFario/wikimasterpoulet/issues"
+  },
+  "homepage": "https://github.com/TroutFario/wikimasterpoulet#readme",
+  "dependencies": {
+    "@google/adk": "^2.1.0"
+  },
+  "devDependencies": {
+    "@google/adk-devtools": "^2.1.0"
+  }
+}
