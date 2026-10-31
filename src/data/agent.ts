@@ -1,11 +1,15 @@
 import { Value } from "./values";
 
-export interface Actor {
+export interface Agent {
   name: string;
   preferences: Value[];
 }
 
-export const actorList: Actor[] = [
+export function prefers(agent: Agent, valueA: Value, valueB: Value): boolean {
+  return agent.preferences.indexOf(valueA) < agent.preferences.indexOf(valueB);
+}
+
+export const agentList: Agent[] = [
   {
     name: "Écologiste",
     preferences: [

@@ -1,10 +1,29 @@
-import { ArgumentId } from "./argument";
+import { Agent, prefers } from "./agent";
+import { ArgumentId, argumentsList } from "./argument";
 
 export interface Attack {
   from: ArgumentId;
   to: ArgumentId;
   justification: string;
 }
+
+export enum AttackStatus {
+  Success,
+  Rejected,
+}
+
+export const attack: (attack: Attack, agent: Agent) => AttackStatus = (
+  attack,
+  agent,
+) => {
+  return prefers(
+    agent,
+    argumentsList[attack.from].value,
+    argumentsList[attack.to].value,
+  )
+    ? AttackStatus.Success
+    : AttackStatus.Rejected;
+};
 
 export const attacks: Attack[] = [
   // --- Coût économique ---
