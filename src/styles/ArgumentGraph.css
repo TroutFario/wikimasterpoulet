@@ -1,0 +1,734 @@
+/* ========================================
+   1. BASE
+======================================== */
+
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  color: #172033;
+  background: #f4f6fb;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 360px;
+  min-height: 100vh;
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+button,
+select {
+  cursor: pointer;
+}
+
+
+/* ========================================
+   2. PAGE ET EN-TÊTE
+======================================== */
+
+.vaf-page {
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+.vaf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+
+  margin-bottom: 24px;
+}
+
+.vaf-header h1 {
+  margin: 8px 0;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  letter-spacing: -0.04em;
+}
+
+.vaf-header p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.eyebrow {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+
+/* ========================================
+   3. SÉLECTEUR D'ACTEUR
+======================================== */
+
+.actor-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  min-width: 220px;
+
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.actor-selector label {
+  color: #475569;
+}
+
+.actor-selector select {
+  width: 100%;
+  padding: 12px 14px;
+
+  border: 1px solid #dbe2ed;
+  border-radius: 10px;
+
+  background: white;
+  color: #172033;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.actor-selector select:hover {
+  border-color: #a5b4fc;
+}
+
+.actor-selector select:focus-visible {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 15%);
+}
+
+
+/* ========================================
+   4. GRILLE DES STATISTIQUES
+======================================== */
+
+.stats {
+  display: grid;
+
+  grid-template-columns:
+    minmax(130px, 1fr)
+    minmax(130px, 1fr)
+    minmax(260px, 2fr)
+    minmax(230px, 2fr);
+
+  grid-template-rows: minmax(100px, auto) minmax(100px, auto);
+
+  grid-template-areas:
+    "stat-argc stat-atkc stat-det stat-actinfo"
+    "stat-atks stat-atkn stat-det stat-actinfo";
+
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+
+/* Carte générique */
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  min-width: 0;
+  padding: 18px;
+
+  border: 1px solid #e5eaf2;
+  border-radius: 14px;
+
+  background: white;
+
+  box-shadow: 0 2px 5px rgb(15 23 42 / 2%);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  border-color: #d5dcef;
+  box-shadow: 0 4px 12px rgb(15 23 42 / 5%);
+}
+
+.stat-label {
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Chiffres */
+
+.stat-card:not(.stat-det):not(.stat-actinfo) > strong {
+  font-size: 1.8rem;
+  line-height: 1.2;
+  font-weight: 750;
+  color: #172033;
+}
+
+.effective-count {
+  color: #dc2626 !important;
+}
+
+.neutralized-count {
+  color: #64748b !important;
+}
+
+
+/* Positionnement dans la grille */
+
+.stat-argc {
+  grid-area: stat-argc;
+}
+
+.stat-atkc {
+  grid-area: stat-atkc;
+}
+
+.stat-atks {
+  grid-area: stat-atks;
+}
+
+.stat-atkn {
+  grid-area: stat-atkn;
+}
+
+.stat-det {
+  grid-area: stat-det;
+}
+
+.stat-actinfo {
+  grid-area: stat-actinfo;
+}
+
+
+/* ========================================
+   5. CARTE DES DÉTAILS
+======================================== */
+
+.stat-det {
+  overflow-wrap: anywhere;
+}
+
+.stat-det h2 {
+  margin: 2px 0 4px;
+
+  color: #172033;
+  font-size: 1.15rem;
+  line-height: 1.45;
+}
+
+.stat-det p {
+  margin: 0;
+
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  margin-top: 8px;
+}
+
+/* La balise <br> n'est plus nécessaire pour espacer les badges. */
+
+.detail-tags br {
+  display: none;
+}
+
+.value-tag,
+.position-tag {
+  display: inline-flex;
+  align-items: center;
+
+  max-width: 100%;
+  padding: 6px 9px;
+
+  border-radius: 7px;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.value-tag {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.position-tag.support {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.position-tag.oppose {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+
+/* ========================================
+   6. INFORMATIONS SUR L'ACTEUR
+======================================== */
+
+.stat-actinfo h2 {
+  margin: 2px 0;
+
+  color: #172033;
+  font-size: 1.2rem;
+  line-height: 1.4;
+}
+
+.stat-actinfo p {
+  margin: 0;
+
+  color: #64748b;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.stat-actinfo ol {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  margin: 4px 0 0;
+  padding-left: 28px;
+}
+
+.stat-actinfo li {
+  padding: 7px 4px;
+
+  color: #475569;
+  font-size: 0.82rem;
+  line-height: 1.4;
+
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.stat-actinfo li:last-child {
+  border-bottom: none;
+}
+
+
+/* ========================================
+   7. GRAPHE REACT FLOW
+======================================== */
+
+.graph-container {
+  position: relative;
+
+  width: 100%;
+  height: 730px;
+  min-width: 0;
+
+  overflow: hidden;
+
+  border: 1px solid #e1e7f0;
+  border-radius: 16px;
+
+  background: white;
+}
+
+.graph-container .react-flow {
+  width: 100%;
+  height: 100%;
+}
+
+.react-flow__edge-text {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.react-flow__edge-textbg {
+  fill: white;
+  fill-opacity: 0.9;
+}
+
+.react-flow__controls {
+  overflow: hidden;
+
+  border: 1px solid #e1e7f0;
+  border-radius: 10px;
+
+  box-shadow: 0 2px 8px rgb(15 23 42 / 8%);
+}
+
+.react-flow__controls-button {
+  border-bottom-color: #e1e7f0;
+}
+
+.react-flow__minimap {
+  overflow: hidden;
+
+  border: 1px solid #e1e7f0;
+  border-radius: 10px;
+}
+
+
+/* ========================================
+   8. NŒUDS DES ARGUMENTS
+======================================== */
+
+.argument-node {
+  width: 240px;
+  padding: 13px;
+
+  border: 1px solid #dbe2ed;
+  border-left: 5px solid #16a34a;
+  border-radius: 12px;
+
+  background: white;
+
+  box-shadow: 0 4px 12px rgb(15 23 42 / 7%);
+
+  transition:
+    box-shadow 0.2s ease,
+    outline-color 0.2s ease;
+}
+
+.argument-node.oppose {
+  border-left-color: #ea580c;
+}
+
+.argument-node.selected {
+  outline: 3px solid #818cf8;
+  outline-offset: 2px;
+}
+
+.argument-node-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+
+  margin-bottom: 10px;
+}
+
+.argument-position {
+  color: #15803d;
+
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.argument-node.oppose .argument-position {
+  color: #c2410c;
+}
+
+.argument-value {
+  color: #64748b;
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.argument-title {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #172033;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.argument-text {
+  margin: 0;
+
+  color: #475569;
+  font-size: 0.73rem;
+  line-height: 1.5;
+}
+
+
+/* ========================================
+   9. LÉGENDE ET OPTIONS
+======================================== */
+
+.graph-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 18px;
+
+  margin: 12px 0 18px;
+  padding: 14px 18px;
+
+  border: 1px solid #e5eaf2;
+  border-radius: 12px;
+
+  background: white;
+}
+
+.graph-toolbar > span {
+  display: inline-flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 8px;
+
+  color: #475569;
+  font-size: 0.82rem;
+}
+
+.legend-line {
+  display: inline-block;
+  flex: 0 0 auto;
+
+  width: 28px;
+
+  border-top: 3px solid;
+}
+
+.effective-line {
+  border-color: #dc2626;
+}
+
+.neutralized-line {
+  border-color: #94a3b8;
+  border-top-style: dashed;
+}
+
+.neutralized-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+
+  margin-left: auto;
+
+  color: #475569;
+  font-size: 0.82rem;
+
+  cursor: pointer;
+}
+
+.neutralized-toggle input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+
+  accent-color: #4f46e5;
+  cursor: pointer;
+}
+
+
+/* Classes optionnelles pour une légende plus complète */
+
+.legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  color: #475569;
+  font-size: 0.8rem;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.support-dot {
+  background: #16a34a;
+}
+
+.oppose-dot {
+  background: #ea580c;
+}
+
+
+/* ========================================
+   10. PIED DE PAGE
+======================================== */
+
+.vaf-footer {
+  margin-top: 18px;
+  padding: 18px 20px;
+
+  border: 1px solid #e5eaf2;
+  border-radius: 14px;
+
+  background: white;
+}
+
+.vaf-footer p {
+  margin: 0;
+
+  color: #64748b;
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+.vaf-footer strong {
+  color: #172033;
+  font-size: 0.9rem;
+}
+
+
+/* ========================================
+   11. ACCESSIBILITÉ
+======================================== */
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 3px;
+}
+
+
+/* ========================================
+   12. RESPONSIVE : TABLETTES
+======================================== */
+
+@media (max-width: 1150px) {
+  .vaf-page {
+    padding: 20px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto;
+    grid-template-areas:
+      "stat-argc stat-atkc"
+      "stat-atks stat-atkn"
+      "stat-det stat-actinfo";
+  }
+
+  .stat-det,
+  .stat-actinfo {
+    min-height: 100%;
+  }
+
+  .graph-container {
+    height: 650px;
+  }
+}
+
+
+/* ========================================
+   13. RESPONSIVE : MOBILES
+======================================== */
+
+@media (max-width: 700px) {
+  .vaf-page {
+    padding: 14px;
+  }
+
+  .vaf-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .vaf-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .actor-selector {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .stats {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas:
+      "stat-argc"
+      "stat-atkc"
+      "stat-atks"
+      "stat-atkn"
+      "stat-det"
+      "stat-actinfo";
+
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  .stat-det,
+  .stat-actinfo {
+    min-height: auto;
+  }
+
+  .graph-container {
+    height: 580px;
+    border-radius: 12px;
+  }
+
+  .graph-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .neutralized-toggle {
+    margin-left: 0;
+  }
+
+  .vaf-footer {
+    padding: 15px;
+  }
+}
+
+
+/* ========================================
+   14. PETITS ÉCRANS
+======================================== */
+
+@media (max-width: 420px) {
+  .vaf-page {
+    padding: 10px;
+  }
+
+  .vaf-header h1 {
+    font-size: 1.55rem;
+  }
+
+  .graph-container {
+    height: 500px;
+  }
+
+  .stat-card:not(.stat-det):not(.stat-actinfo) > strong {
+    font-size: 1.6rem;
+  }
+}
