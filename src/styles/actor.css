@@ -1,0 +1,39 @@
+/* ========================================
+   SÉLECTEUR D'ACTEUR PRINCIPAL
+======================================== */
+
+.actor-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 220px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.actor-selector label {
+  color: #475569;
+}
+
+.actor-selector select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dbe2ed;
+  border-radius: 10px;
+  background: white;
+  color: #172033;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.actor-selector select:hover {
+  border-color: #a5b4fc;
+}
+
+.actor-selector select:focus-visible {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 15%);
+}

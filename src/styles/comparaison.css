@@ -1,0 +1,113 @@
+/* ========================================
+   SÉLECTEURS DES DEUX AGENTS
+======================================== */
+
+.actor-selectors {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.actor-selector-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.comparison-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.comparison-select {
+  min-width: 190px;
+  max-width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #172033;
+  font: inherit;
+}
+
+.comparison-select:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* ========================================
+   PANNEAU DE COMPARAISON
+======================================== */
+
+.comparison-panel {
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.comparison-heading {
+  margin-bottom: 1rem;
+}
+
+.comparison-heading h2 {
+  margin: 0 0 0.4rem;
+  color: #172033;
+}
+
+.comparison-heading p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.comparison-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.comparison-card {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.comparison-card h3 {
+  margin: 0 0 1rem;
+  color: #172033;
+}
+
+.comparison-card h4 {
+  margin: 1.25rem 0 0.75rem;
+  color: #475569;
+}
+
+.comparison-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.comparison-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.85rem;
+  border-radius: 8px;
+  background: #f1f5f9;
+}
+
+.comparison-metric span {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.comparison-metric strong {
+  font-size: 1.75rem;
+}

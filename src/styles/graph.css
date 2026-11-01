@@ -1,0 +1,127 @@
+/* ========================================
+   GRAPHE REACT FLOW
+======================================== */
+
+.graph-container {
+  position: relative;
+  width: 100%;
+  height: 730px;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #e1e7f0;
+  border-radius: 16px;
+  background: white;
+}
+
+.graph-container .react-flow {
+  width: 100%;
+  height: 100%;
+}
+
+.react-flow__edge-text {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.react-flow__edge-textbg {
+  fill: white;
+  fill-opacity: 0.9;
+}
+
+.react-flow__controls {
+  overflow: hidden;
+  border: 1px solid #e1e7f0;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 8%);
+}
+
+.react-flow__controls-button {
+  border-bottom-color: #e1e7f0;
+}
+
+.react-flow__minimap {
+  overflow: hidden;
+  border: 1px solid #e1e7f0;
+  border-radius: 10px;
+}
+
+/* ========================================
+   NŒUDS DES ARGUMENTS
+======================================== */
+
+.argument-node {
+  width: 240px;
+  padding: 13px;
+  border: 1px solid #dbe2ed;
+  border-left: 5px solid #16a34a;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 12px rgb(15 23 42 / 7%);
+
+  transition:
+    box-shadow 0.2s ease,
+    outline-color 0.2s ease;
+}
+
+.argument-node.oppose {
+  border-left-color: #ea580c;
+}
+
+.argument-node.selected {
+  outline: 3px solid #818cf8;
+  outline-offset: 2px;
+}
+
+.argument-node-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.argument-position {
+  color: #15803d;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.argument-node.oppose .argument-position {
+  color: #c2410c;
+}
+
+.argument-value {
+  color: #64748b;
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.argument-title {
+  display: block;
+  margin-bottom: 7px;
+  color: #172033;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.argument-text {
+  margin: 0;
+  color: #475569;
+  font-size: 0.73rem;
+  line-height: 1.5;
+}
+
+/* Interaction avec les attaques */
+
+.react-flow__edge-interaction {
+  stroke-width: 18px;
+}
+
+.react-flow__edge.selected path {
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.25));
+}
+
+.react-flow__edge {
+  cursor: pointer;
+}

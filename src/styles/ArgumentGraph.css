@@ -123,19 +123,11 @@ select {
 
 .stats {
   display: grid;
-
-  grid-template-columns:
-    minmax(130px, 1fr)
-    minmax(130px, 1fr)
-    minmax(260px, 2fr)
-    minmax(230px, 2fr);
-
-  grid-template-rows: minmax(100px, auto) minmax(100px, auto);
-
+  grid-template-columns: 1fr 1fr 2fr 2fr;
+  grid-template-rows: 1fr 1fr;
   grid-template-areas:
     "stat-argc stat-atkc stat-det stat-actinfo"
-    "stat-atks stat-atkn stat-det stat-actinfo";
-
+    "stat-atks stat-atkn stat-exts stat-actinfo";
   gap: 14px;
   margin-bottom: 18px;
 }
@@ -146,17 +138,12 @@ select {
   display: flex;
   flex-direction: column;
   gap: 10px;
-
   min-width: 0;
   padding: 18px;
-
   border: 1px solid #e5eaf2;
   border-radius: 14px;
-
   background: white;
-
   box-shadow: 0 2px 5px rgb(15 23 42 / 2%);
-
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
@@ -176,19 +163,35 @@ select {
 
 /* Chiffres */
 
+.stat-card:not(.stat-det):not(.stat-actinfo) {
+  display: flex;
+  flex-direction: column;
+}
+
 .stat-card:not(.stat-det):not(.stat-actinfo) > strong {
-  font-size: 1.8rem;
-  line-height: 1.2;
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  font-size: clamp(2.5rem, 5vw, 10rem);
+  line-height: 1;
   font-weight: 750;
   color: #172033;
 }
 
 .effective-count {
-  color: #dc2626 !important;
+  color: #1e40af !important;
 }
 
 .neutralized-count {
-  color: #64748b !important;
+  color: #94a3b8 !important;
+}
+
+.modified-label {
+  font-size: 0.75em;
+  font-weight: 500;
+  color: #2563eb;
+  white-space: nowrap;
 }
 
 /* Positionnement dans la grille */
@@ -211,6 +214,10 @@ select {
 
 .stat-det {
   grid-area: stat-det;
+}
+
+.stat-exts {
+  grid-area: stat-exts;
 }
 
 .stat-actinfo {
@@ -249,8 +256,6 @@ select {
 
   margin-top: 8px;
 }
-
-/* La balise <br> n'est plus nécessaire pour espacer les badges. */
 
 .detail-tags br {
   display: none;
@@ -324,6 +329,10 @@ select {
   padding-left: 28px;
 }
 
+.preference-item {
+  cursor: row-resize;
+}
+
 .stat-actinfo li {
   padding: 7px 4px;
 
@@ -336,6 +345,28 @@ select {
 
 .stat-actinfo li:last-child {
   border-bottom: none;
+}
+
+.extensions-container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.extension-box {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  align-items: baseline;
+  align-content: flex-start;
+  gap: 5px;
+}
+
+.extension-box > h2 {
+  flex-basis: 100%;
+  margin: 0;
 }
 
 /* ========================================
@@ -507,12 +538,21 @@ select {
 }
 
 .effective-line {
-  border-color: #dc2626;
+  border-color: #1e40af;
 }
 
 .neutralized-line {
   border-color: #94a3b8;
   border-top-style: dashed;
+  visibility: visible;
+}
+
+.neutralized-line.hidden {
+  visibility: hidden;
+}
+
+.neutralized-line-hidden {
+  text-decoration: line-through;
 }
 
 .neutralized-toggle {
@@ -570,33 +610,6 @@ select {
 }
 
 /* ========================================
-   10. PIED DE PAGE
-======================================== */
-
-.vaf-footer {
-  margin-top: 18px;
-  padding: 18px 20px;
-
-  border: 1px solid #e5eaf2;
-  border-radius: 14px;
-
-  background: white;
-}
-
-.vaf-footer p {
-  margin: 0;
-
-  color: #64748b;
-  font-size: 0.85rem;
-  line-height: 1.7;
-}
-
-.vaf-footer strong {
-  color: #172033;
-  font-size: 0.9rem;
-}
-
-/* ========================================
    11. ACCESSIBILITÉ
 ======================================== */
 
@@ -620,9 +633,8 @@ input:focus-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: auto;
     grid-template-areas:
-      "stat-argc stat-atkc"
-      "stat-atks stat-atkn"
-      "stat-det stat-actinfo";
+      "stat-argc stat-atkc stat-det stat-actinfo"
+      "stat-atks stat-atkn stat-exts stat-actinfo";
   }
 
   .stat-det,
@@ -738,4 +750,146 @@ input:focus-visible {
 /* Le curseur indique qu'une attaque est interactive. */
 .react-flow__edge {
   cursor: pointer;
+}
+
+/* Sélecteurs des deux agents */
+
+.actor-selectors {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.actor-selector-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.comparison-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.comparison-select {
+  min-width: 190px;
+  max-width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #172033;
+  font: inherit;
+}
+
+.comparison-select:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Panneau de comparaison */
+
+.comparison-panel {
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.comparison-heading {
+  margin-bottom: 1rem;
+}
+
+.comparison-heading h2 {
+  margin: 0 0 0.4rem;
+  color: #172033;
+}
+
+.comparison-heading p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.comparison-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.comparison-card {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.comparison-card h3 {
+  margin: 0 0 1rem;
+  color: #172033;
+}
+
+.comparison-card h4 {
+  margin: 1.25rem 0 0.75rem;
+  color: #475569;
+}
+
+.comparison-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.comparison-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.85rem;
+  border-radius: 8px;
+  background: #f1f5f9;
+}
+
+.comparison-metric span {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.comparison-metric strong {
+  font-size: 1.75rem;
+}
+
+@media (max-width: 700px) {
+  .actor-selectors {
+    align-items: stretch;
+  }
+
+  .actor-selector-item {
+    width: 100%;
+  }
+
+  .comparison-select {
+    width: 100%;
+  }
+
+  .comparison-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .comparison-panel {
+    padding: 0.75rem;
+  }
+
+  .comparison-card {
+    padding: 0.75rem;
+  }
+
+  .comparison-metrics {
+    grid-template-columns: 1fr;
+  }
 }

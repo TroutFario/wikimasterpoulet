@@ -1,0 +1,107 @@
+/* ========================================
+   GRILLE DES STATISTIQUES
+======================================== */
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 2fr;
+  grid-template-rows: 1fr 1fr;
+  grid-template-areas:
+    "stat-argc stat-atkc stat-det stat-actinfo"
+    "stat-atks stat-atkn stat-exts stat-actinfo";
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+/* Carte générique */
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #e5eaf2;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 2px 5px rgb(15 23 42 / 2%);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  border-color: #d5dcef;
+  box-shadow: 0 4px 12px rgb(15 23 42 / 5%);
+}
+
+.stat-label {
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Chiffres */
+
+.stat-card:not(.stat-det):not(.stat-actinfo) {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-card:not(.stat-det):not(.stat-actinfo) > strong {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  font-size: clamp(2.5rem, 5vw, 10rem);
+  line-height: 1;
+  font-weight: 750;
+  color: #172033;
+}
+
+.effective-count {
+  color: #1e40af !important;
+}
+
+.neutralized-count {
+  color: #94a3b8 !important;
+}
+
+.modified-label {
+  font-size: 0.75em;
+  font-weight: 500;
+  color: #2563eb;
+  white-space: nowrap;
+}
+
+/* Positionnement dans la grille */
+
+.stat-argc {
+  grid-area: stat-argc;
+}
+
+.stat-atkc {
+  grid-area: stat-atkc;
+}
+
+.stat-atks {
+  grid-area: stat-atks;
+}
+
+.stat-atkn {
+  grid-area: stat-atkn;
+}
+
+.stat-det {
+  grid-area: stat-det;
+}
+
+.stat-exts {
+  grid-area: stat-exts;
+}
+
+.stat-actinfo {
+  grid-area: stat-actinfo;
+}

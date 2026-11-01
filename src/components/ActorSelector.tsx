@@ -1,3 +1,4 @@
+import { getActorEmoji } from "../data/actors";
 import type { Actor } from "../types/argumentation";
 
 type ActorSelectorProps = {
@@ -24,7 +25,7 @@ export default function ActorSelector({ actor, actors, onChange }: ActorSelector
       >
         {actors.map((item) => (
           <option key={item.name} value={item.name}>
-            {item.name}
+            {`${getActorEmoji(item.name)}\t${item.name}`}
           </option>
         ))}
       </select>

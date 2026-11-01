@@ -1,7 +1,7 @@
 import ArgumentNode from "../components/ArgumentNode";
 import type { AttackStatus } from "../logic/evaluateAttack";
 
-export type PolicyPosition = "Soutient" | "Opposé";
+type PolicyPosition = "Soutient" | "Opposé";
 
 export type Value =
   | "Environment"
@@ -38,15 +38,20 @@ export interface Attack {
   justification: string;
 }
 
-export interface Actor {
-  name: string;
-  preferences: Value[];
+export interface Argument {
+  id: ArgumentId;
+  title: string;
+  text: string;
+  value: Value;
+  position: PolicyPosition;
 }
 
-// --------------------------------------------------
-// Types utilisés par React Flow
-// --------------------------------------------------
+export type Actor = {
+  name: string;
+  preferences: Value[];
+};
 
+// Types utilisés par React Flow
 export type ArgumentNodeData = {
   argument: Argument;
 };

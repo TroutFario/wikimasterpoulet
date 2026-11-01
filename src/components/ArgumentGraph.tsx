@@ -1,6 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Background, Controls, ReactFlow, MarkerType, type Edge, type Node } from "@xyflow/react";
-
 import "@xyflow/react/dist/style.css";
 import "../styles/ArgumentGraph.css";
 
@@ -8,6 +7,7 @@ import { argumentsList } from "../data/arguments";
 import { attacks } from "../data/attacks";
 import { actors } from "../data/actors";
 import { evaluateAttack } from "../logic/evaluateAttack";
+import { computePreferredExtensions } from "../logic/computePreferredExtension";
 
 import {
   nodeTypes,
@@ -20,48 +20,96 @@ import {
 import ActorSelector from "./ActorSelector";
 import ActorPreferences from "./ActorPreferences";
 import ArgumentDetails from "./ArgumentDetails";
+import ActorComparison from "./actor/ActorComparaison";
+import GraphToolbar from "./graph/GraphToolbar";
+import { layoutArguments, type Point } from "../logic/layoutArguments";
+import { edgeTypes } from "./edgeTypes";
+import { separateOverlappingEdges } from "../logic/separateOverlappingEdges";
 
-// Configuration de l'affichage du graphe
-const EDGE_STYLE: "smoothstep" | "straight" = "smoothstep";
-
-// Positions des arguments dans le graphe.
-const nodePositions: Record<ArgumentId, { x: number; y: number }> = {
-  reductionCO2: { x: 0, y: 0 },
-  tropCher: { x: 450, y: 0 },
-  santePollution: { x: 0, y: 220 },
-  placeVoitures: { x: 450, y: 250 },
-  catenairePatrimoine: { x: 900, y: 0 },
-  transportAccessible: { x: 900, y: 250 },
-  innovationUrbaine: { x: 1350, y: 120 },
-  reductionAccidents: { x: 900, y: 500 },
-  coutPollution: { x: 450, y: 500 },
+type RoutedEdgeData = VafEdgeData & {
+  points?: Point[];
 };
 
 export default function ArgumentGraph() {
-  const [actor, setActor] = useState<Actor>(actors[0]);
+  // Agent principal : ses préférences restent personnalisables.
+  const [actor, setActor] = useState<Actor>(() => ({
+    ...actors[0],
+    preferences: [...actors[0].preferences],
+  }));
+
+  const [hasChanged, setHasChanged] = useState(false);
+
+  // Agent secondaire : sélection d'un acteur de référence.
+  // Une chaîne vide signifie qu'aucune comparaison n'est active.
+  const [comparisonActorIndex, setComparisonActorIndex] = useState<string>("");
+
   const [showNeutralized, setShowNeutralized] = useState(true);
   const [selectedArgumentId, setSelectedArgumentId] = useState<ArgumentId | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
 
-  // Index des arguments pour retrouver rapidement un argument par son ID.
   const argumentsById = useMemo(
     () => new Map(argumentsList.map((argument) => [argument.id, argument])),
     [],
   );
 
-  // Création des nœuds.
-  const nodes = useMemo<Node<ArgumentNodeData, "argument">[]>(
-    () =>
-      argumentsList.map((argument) => ({
-        id: argument.id,
-        type: "argument",
-        position: nodePositions[argument.id],
-        data: { argument },
-      })),
-    [],
-  );
+  const [nodes, setNodes] = useState<Node<ArgumentNodeData, "argument">[]>([]);
 
-  // Évaluation des attaques selon les préférences de l'acteur.
+  const [edgePaths, setEdgePaths] = useState<Record<string, Point[]>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function calculateLayout() {
+      try {
+        const layout = await layoutArguments(argumentsList, attacks);
+
+        if (cancelled) {
+          return;
+        }
+
+        const layoutedNodes: Node<ArgumentNodeData, "argument">[] = argumentsList.map(
+          (argument) => ({
+            id: argument.id,
+            type: "argument",
+            position: layout.positions[argument.id] ?? { x: 0, y: 0 },
+            data: { argument },
+          }),
+        );
+
+        setNodes(layoutedNodes);
+        setEdgePaths(layout.edgePaths);
+      } catch (error) {
+        console.error("Erreur lors du calcul de la disposition ELK :", error);
+      }
+    }
+
+    void calculateLayout();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Agent de référence : on utilise ses préférences initiales.
+  // On copie également le tableau pour éviter toute mutation accidentelle.
+  const comparisonActor = useMemo<Actor | null>(() => {
+    if (comparisonActorIndex === "") {
+      return null;
+    }
+
+    const selected = actors[Number(comparisonActorIndex)];
+
+    if (!selected) {
+      return null;
+    }
+
+    return {
+      ...selected,
+      preferences: [...selected.preferences],
+    };
+  }, [comparisonActorIndex]);
+
+  // Calcul des attaques pour l'agent principal.
   const evaluatedAttacks = useMemo(
     () =>
       attacks.map((attack, index) => {
@@ -83,8 +131,38 @@ export default function ArgumentGraph() {
     [actor, argumentsById],
   );
 
-  // Création des arêtes React Flow.
-  const edges = useMemo<Edge<VafEdgeData>[]>(
+  // Calcul des attaques pour l'agent de comparaison.
+  const comparisonEvaluatedAttacks = useMemo(() => {
+    if (!comparisonActor) {
+      return [];
+    }
+
+    return attacks.map((attack, index) => {
+      const attacker = argumentsById.get(attack.from);
+      const target = argumentsById.get(attack.to);
+
+      if (!attacker || !target) {
+        throw new Error(`Attaque invalide : ${attack.from} -> ${attack.to}`);
+      }
+
+      return {
+        id: `comparison-attack-${index}`,
+        status: evaluateAttack(attack, comparisonActor, argumentsById),
+      };
+    });
+  }, [comparisonActor, argumentsById]);
+
+  const separatedEdgePaths = useMemo(
+    () =>
+      separateOverlappingEdges(
+        Object.entries(edgePaths).map(([id, points]) => ({
+          id,
+          points,
+        })),
+      ),
+    [edgePaths],
+  );
+  const edges = useMemo<Edge<RoutedEdgeData>[]>(
     () =>
       evaluatedAttacks
         .filter(({ status }) => showNeutralized || status === "effective")
@@ -97,7 +175,7 @@ export default function ArgumentGraph() {
             id,
             source: attack.from,
             target: attack.to,
-            type: EDGE_STYLE,
+            type: "elk",
             selectable: true,
             interactionWidth: 18,
             style: {
@@ -106,21 +184,20 @@ export default function ArgumentGraph() {
               strokeDasharray: effective ? undefined : "6 4",
               opacity: selected ? 1 : 0.85,
             },
-
             markerEnd: {
               type: MarkerType.ArrowClosed,
               color,
             },
-
             data: {
               status,
               justification: attack.justification,
               fromTitle: attacker.title,
               toTitle: target.title,
+              points: separatedEdgePaths[id] ?? edgePaths[id],
             },
           };
         }),
-    [evaluatedAttacks, selectedEdgeId, showNeutralized],
+    [evaluatedAttacks, selectedEdgeId, showNeutralized, edgePaths, separatedEdgePaths],
   );
 
   const selectedArgument = selectedArgumentId ? argumentsById.get(selectedArgumentId) : undefined;
@@ -129,7 +206,7 @@ export default function ArgumentGraph() {
     ? edges.find((edge) => edge.id === selectedEdgeId)
     : undefined;
 
-  // Statistiques globales des attaques pour l'acteur choisi.
+  // Statistiques de l'agent principal.
   const { effectiveCount, neutralizedCount } = evaluatedAttacks.reduce(
     (counts, { status }) => {
       if (status === "effective") {
@@ -143,21 +220,105 @@ export default function ArgumentGraph() {
     { effectiveCount: 0, neutralizedCount: 0 },
   );
 
+  // Statistiques de l'agent de comparaison.
+  const comparisonCounts = comparisonEvaluatedAttacks.reduce(
+    (counts, { status }) => {
+      if (status === "effective") {
+        counts.effectiveCount++;
+      } else {
+        counts.neutralizedCount++;
+      }
+
+      return counts;
+    },
+    { effectiveCount: 0, neutralizedCount: 0 },
+  );
+
   function handleActorChange(nextActor: Actor) {
-    setActor(nextActor);
+    setActor({
+      ...nextActor,
+      preferences: [...nextActor.preferences],
+    });
+
+    setHasChanged(false);
     setSelectedArgumentId(null);
     setSelectedEdgeId(null);
   }
+
+  function handlePreferencesChange(nextPreferences: Actor["preferences"]) {
+    const matchingActor = actors.find(
+      (originalActor) =>
+        originalActor.preferences.length === nextPreferences.length &&
+        originalActor.preferences.every((value, index) => value === nextPreferences[index]),
+    );
+
+    if (matchingActor) {
+      setActor({
+        ...matchingActor,
+        preferences: [...matchingActor.preferences],
+      });
+
+      setHasChanged(false);
+    } else {
+      setActor((currentActor) => ({
+        ...currentActor,
+        preferences: [...nextPreferences],
+      }));
+
+      setHasChanged(true);
+    }
+
+    setSelectedArgumentId(null);
+    setSelectedEdgeId(null);
+  }
+
+  // Calcul des extensions préférées des deux agents.
+  const extensions = useMemo(
+    () => computePreferredExtensions(argumentsList, attacks, actor),
+    [actor],
+  );
+
+  const comparisonExtensions = useMemo(
+    () =>
+      comparisonActor ? computePreferredExtensions(argumentsList, attacks, comparisonActor) : [],
+    [comparisonActor],
+  );
 
   return (
     <main className="vaf-page">
       <header className="vaf-header">
         <div>
-          <h1>Débat autour du tramway</h1>
+          <h1>WikiMasterPoulet</h1>
           <p>Argumentation fondée sur les valeurs et les préférences des acteurs.</p>
         </div>
 
-        <ActorSelector actor={actor} actors={actors} onChange={handleActorChange} />
+        <div className="actor-selectors">
+          <div className="actor-selector-item">
+            <span className="comparison-label">Agent principal</span>
+            <ActorSelector actor={actor} actors={actors} onChange={handleActorChange} />
+          </div>
+
+          <div className="actor-selector-item">
+            <label className="comparison-label" htmlFor="comparison-actor">
+              Comparer avec
+            </label>
+
+            <select
+              id="comparison-actor"
+              className="comparison-select"
+              value={comparisonActorIndex}
+              onChange={(event) => setComparisonActorIndex(event.target.value)}
+            >
+              <option value="">Aucune comparaison</option>
+
+              {actors.map((availableActor, index) => (
+                <option key={index} value={String(index)}>
+                  {availableActor.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </header>
 
       <section className="stats">
@@ -187,24 +348,60 @@ export default function ArgumentGraph() {
           actorName={actor.name}
         />
 
-        <ActorPreferences actor={actor} />
+        <div className="stat-card stat-exts">
+          <span className="stat-label">
+            {extensions.length > 1 ? "Extensions préférées" : "Extension préférée"}
+          </span>
+
+          <div className="extensions-container">
+            {extensions.map((extension, extIndex) => (
+              <div key={`extension-${extIndex}`} className="extension-box">
+                <h2>#{extIndex + 1}</h2>
+
+                {extension.map((argument, argIndex) => (
+                  <span className="value-tag" key={`argument-${argIndex}`}>
+                    {argument.title}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <ActorPreferences
+          actor={actor}
+          onPreferencesChange={handlePreferencesChange}
+          hasChanged={hasChanged}
+        />
       </section>
+
+      {comparisonActor && (
+        <ActorComparison
+          mainActor={actor}
+          comparisonActor={comparisonActor}
+          mainEffectiveCount={effectiveCount}
+          mainNeutralizedCount={neutralizedCount}
+          comparisonEffectiveCount={comparisonCounts.effectiveCount}
+          comparisonNeutralizedCount={comparisonCounts.neutralizedCount}
+          mainExtensions={extensions}
+          comparisonExtensions={comparisonExtensions}
+        />
+      )}
 
       <section className="graph-container">
         <ReactFlow
           nodes={nodes}
           edges={edges}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           fitView
           fitViewOptions={{ padding: 0.2 }}
           minZoom={0.15}
           maxZoom={2}
-
           nodesDraggable={false}
           nodesConnectable={false}
           edgesReconnectable={false}
           deleteKeyCode={null}
-
           elementsSelectable={true}
           onNodeClick={(_, node) => {
             setSelectedArgumentId(node.id as ArgumentId);
@@ -224,36 +421,13 @@ export default function ArgumentGraph() {
         </ReactFlow>
       </section>
 
-      <section className="graph-toolbar">
-        <span>
-          <span className="legend-line effective-line" />
-          Attaque effective
-        </span>
-
-        <span>
-          <span className="legend-line neutralized-line" />
-          Attaque neutralisée
-        </span>
-
-        <label className="neutralized-toggle">
-          <input
-            type="checkbox"
-            checked={showNeutralized}
-            onChange={(event) => {
-              setShowNeutralized(event.target.checked);
-              setSelectedEdgeId(null);
-            }}
-          />
-          Afficher les attaques neutralisées
-        </label>
-      </section>
-
-      <footer className="vaf-footer">
-        <p>
-          Le statut des attaques dépend des préférences de l'acteur sélectionné. Une attaque
-          neutralisée n'implique pas que l'argument attaquant soit rejeté.
-        </p>
-      </footer>
+      <GraphToolbar
+        showNeutralized={showNeutralized}
+        onShowNeutralizedChange={(show) => {
+          setShowNeutralized(show);
+          setSelectedEdgeId(null);
+        }}
+      />
     </main>
   );
 }

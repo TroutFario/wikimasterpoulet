@@ -2,7 +2,7 @@ import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
 import type { Argument } from "../types/argumentation";
 import { valueLabels } from "../data/actors";
 
-export interface ArgumentNodeData extends Record<string, unknown> {
+interface ArgumentNodeData extends Record<string, unknown> {
   argument: Argument;
 }
 

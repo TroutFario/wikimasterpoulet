@@ -21,6 +21,5 @@ export function evaluateAttack(
     throw new Error("Une valeur manque dans les préférences de l'acteur.");
   }
 
-  // Plus le rang est petit, plus la valeur est préférée.
   return targetRank < attackerRank ? "neutralized" : "effective";
 }
