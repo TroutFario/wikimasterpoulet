@@ -135,15 +135,4 @@ export const argumentsList: Argument[] = [
     value: "Environment",
     position: "Soutient",
   },
-
-  // ─────────────────────────────────────────
-  // ARGUMENTS EXISTANTS CONSERVÉS
-  // ─────────────────────────────────────────
-  {
-    id: "reductionCO2",
-    title: "Réduction du CO₂",
-    text: "Le tramway réduit les émissions de CO₂.",
-    value: "Environment",
-    position: "Soutient",
-  },
 ];

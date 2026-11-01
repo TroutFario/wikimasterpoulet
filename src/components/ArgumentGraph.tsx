@@ -346,7 +346,7 @@ export default function ArgumentGraph() {
 
         <div className="stat-card stat-exts">
           <span className="stat-label">
-            {extensions.length > 1 ? "Extensions préférées" : "Extension préférée"}
+            {(extensions.length > 1 ? "Extensions préférées" : "Extension préférée") + ` (${extensions.length})`}
           </span>
 
           <div className="extensions-container">

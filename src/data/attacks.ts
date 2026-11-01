@@ -132,7 +132,19 @@ export const attacks: Attack[] = [
     justification:
       "Si le trafic est simplement déplacé vers d'autres rues, les bénéfices environnementaux locaux pourraient être réduits.",
   },
-
+  {
+    from: "coutPollution",
+    to: "financementPublic",
+    justification:
+      "Ne pas investir dans la lutte contre la pollution peut entraîner des coûts sanitaires et environnementaux qui pèseront aussi sur les finances publiques.",
+  },
+  {
+    from: "coutPollution",
+    to: "coutEntretien",
+    justification:
+      "Les dépenses d'entretien du tramway doivent être comparées aux coûts à long terme de l'inaction face à la pollution.",
+  },
+  
   // ─────────────────────────────────────────
   // MOBILITÉ ET ACCESSIBILITÉ
   // ─────────────────────────────────────────

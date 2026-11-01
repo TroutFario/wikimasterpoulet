@@ -58,7 +58,6 @@ export type Actor = {
   preferences: Value[];
 };
 
-// Types utilisés par React Flow
 export type ArgumentNodeData = {
   argument: Argument;
 };
