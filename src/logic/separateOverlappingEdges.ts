@@ -56,7 +56,6 @@ function getSegmentOffsets(segments: Segment[]): Map<string, number> {
 
   const keyOf = (segment: Segment) => `${segment.edgeId}::${segment.index}`;
 
-  // Regroupe les segments qui se chevauchent réellement.
   const neighbors = new Map<string, Set<string>>();
 
   for (const segment of segments) {
@@ -85,7 +84,6 @@ function getSegmentOffsets(segments: Segment[]): Map<string, number> {
     }
   }
 
-  // Chaque groupe reçoit des décalages répartis symétriquement.
   for (const segment of segments) {
     const startKey = keyOf(segment);
 
@@ -139,8 +137,6 @@ export function separateOverlappingEdges(paths: EdgePath[]): Record<string, Poin
     }
 
     const segmentOffsets = points.slice(0, -1).map((_, index) => {
-      // On ne décale pas les segments aux extrémités :
-      // cela permet de conserver les connexions aux nœuds.
       if (index === 0 || index === points.length - 2) {
         return 0;
       }

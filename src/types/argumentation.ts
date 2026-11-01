@@ -22,8 +22,15 @@ export type ArgumentId =
   | "transportAccessible"
   | "innovationUrbaine"
   | "reductionAccidents"
-  | "coutPollution";
-
+  | "coutPollution"
+  | "reportModal"
+  | "coutEntretien"
+  | "financementPublic"
+  | "emploisLocaux"
+  | "dynamismeCommercial"
+  | "intermodalite"
+  | "congestionTrafic"
+  | "amenagementUrbain";
 export interface Argument {
   id: ArgumentId;
   title: string;

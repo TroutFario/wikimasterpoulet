@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Background, Controls, ReactFlow, MarkerType, type Edge, type Node } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import "../styles/ArgumentGraph.css";
 
 import { argumentsList } from "../data/arguments";
 import { attacks } from "../data/attacks";
@@ -40,7 +39,6 @@ export default function ArgumentGraph() {
   const [hasChanged, setHasChanged] = useState(false);
 
   // Agent secondaire : sélection d'un acteur de référence.
-  // Une chaîne vide signifie qu'aucune comparaison n'est active.
   const [comparisonActorIndex, setComparisonActorIndex] = useState<string>("");
 
   const [showNeutralized, setShowNeutralized] = useState(true);
@@ -53,7 +51,6 @@ export default function ArgumentGraph() {
   );
 
   const [nodes, setNodes] = useState<Node<ArgumentNodeData, "argument">[]>([]);
-
   const [edgePaths, setEdgePaths] = useState<Record<string, Point[]>>({});
 
   useEffect(() => {
@@ -91,7 +88,6 @@ export default function ArgumentGraph() {
   }, []);
 
   // Agent de référence : on utilise ses préférences initiales.
-  // On copie également le tableau pour éviter toute mutation accidentelle.
   const comparisonActor = useMemo<Actor | null>(() => {
     if (comparisonActorIndex === "") {
       return null;

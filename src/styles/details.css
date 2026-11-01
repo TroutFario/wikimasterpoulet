@@ -118,10 +118,12 @@
 
 .extensions-container {
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   justify-content: space-between;
   align-items: stretch;
   gap: 10px;
+  overflow-y: scroll;
+  max-height: 130px;
 }
 
 .extension-box {

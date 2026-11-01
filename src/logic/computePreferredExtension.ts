@@ -2,16 +2,6 @@ import type { Argument, ArgumentId, Attack, Actor } from "../types/argumentation
 
 import { evaluateAttack } from "./evaluateAttack";
 
-/**
- * Calcule toutes les extensions préférées pour un acteur.
- *
- * Une extension préférée est un ensemble :
- * - sans conflit interne ;
- * - qui défend chacun de ses arguments contre ses attaquants ;
- * - maximal pour l'inclusion parmi les ensembles admissibles.
- *
- * Les attaques neutralisées ne sont pas considérées comme effectives.
- */
 export function computePreferredExtensions(
   argumentsList: Argument[],
   attacks: Attack[],
