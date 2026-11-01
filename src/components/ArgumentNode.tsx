@@ -8,10 +8,7 @@ export interface ArgumentNodeData extends Record<string, unknown> {
 
 export type ArgumentFlowNode = Node<ArgumentNodeData, "argument">;
 
-export default function ArgumentNode({
-  data,
-  selected,
-}: NodeProps<ArgumentFlowNode>) {
+export default function ArgumentNode({ data, selected }: NodeProps<ArgumentFlowNode>) {
   const argument = data.argument;
 
   return (
@@ -27,9 +24,7 @@ export default function ArgumentNode({
           {argument.position === "Soutient" ? "FAVORABLE" : "DÉFAVORABLE"}
         </span>
 
-        <span className="argument-value">
-          {valueLabels[argument.value]}
-        </span>
+        <span className="argument-value">{valueLabels[argument.value]}</span>
       </div>
 
       <strong className="argument-title">{argument.title}</strong>

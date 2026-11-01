@@ -40,12 +40,14 @@ export default function ArgumentDetails({ argument, edgeData, actorName }: Argum
 
           <p>{edgeData.justification}</p>
 
-            <span
-              className={
-                edgeData.status === "effective" ? "position-tag effective" : "position-tag neutralized"
-              }
-            >
-            Statut pour {" "}<strong>{actorName}</strong>{" "}:{" "}
+          <span
+            className={
+              edgeData.status === "effective"
+                ? "position-tag effective"
+                : "position-tag neutralized"
+            }
+          >
+            Statut pour <strong>{actorName}</strong> :{" "}
             <strong>{edgeData.status === "effective" ? "Effective" : "Neutralisée"}</strong>
           </span>
         </>
