@@ -1,53 +1,30 @@
 import { useMemo, useState } from "react";
-
-import {
-  Background,
-  Controls,
-  MiniMap,
-  ReactFlow,
-  MarkerType,
-  type Edge,
-  type Node,
-} from "@xyflow/react";
+import { Background, Controls, ReactFlow, MarkerType, type Edge, type Node } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
 import "../styles/ArgumentGraph.css";
 
-import ArgumentNode from "./ArgumentNode";
-
 import { argumentsList } from "../data/arguments";
 import { attacks } from "../data/attacks";
-import { actors, valueLabels } from "../data/actors";
-
+import { actors } from "../data/actors";
 import { evaluateAttack } from "../logic/evaluateAttack";
 
-import type { Actor, Argument, ArgumentId } from "../types/argumentation";
+import {
+  nodeTypes,
+  type Actor,
+  type ArgumentId,
+  type ArgumentNodeData,
+  type VafEdgeData,
+} from "../types/argumentation";
 
-import type { AttackStatus } from "../logic/evaluateAttack";
+import ActorSelector from "./ActorSelector";
+import ActorPreferences from "./ActorPreferences";
+import ArgumentDetails from "./ArgumentDetails";
 
-// --------------------------------------------------
-// Types utilisés par React Flow
-// --------------------------------------------------
+// Configuration de l'affichage du graphe
+const EDGE_STYLE: "smoothstep" | "straight" = "smoothstep";
 
-type ArgumentNodeData = {
-  argument: Argument;
-};
-
-type VafEdgeData = {
-  status: AttackStatus;
-  justification: string;
-  fromTitle: string;
-  toTitle: string;
-};
-
-const nodeTypes = {
-  argument: ArgumentNode,
-};
-
-// --------------------------------------------------
-// Positions des arguments dans le graphe
-// --------------------------------------------------
-
+// Positions des arguments dans le graphe.
 const nodePositions: Record<ArgumentId, { x: number; y: number }> = {
   reductionCO2: { x: 0, y: 0 },
   tropCher: { x: 450, y: 0 },
@@ -60,46 +37,31 @@ const nodePositions: Record<ArgumentId, { x: number; y: number }> = {
   coutPollution: { x: 450, y: 500 },
 };
 
-// --------------------------------------------------
-// Composant principal
-// --------------------------------------------------
-
 export default function ArgumentGraph() {
   const [actor, setActor] = useState<Actor>(actors[0]);
   const [showNeutralized, setShowNeutralized] = useState(true);
-
   const [selectedArgumentId, setSelectedArgumentId] = useState<ArgumentId | null>(null);
-
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
 
-  // Permet de retrouver rapidement un argument à partir de son ID.
+  // Index des arguments pour retrouver rapidement un argument par son ID.
   const argumentsById = useMemo(
     () => new Map(argumentsList.map((argument) => [argument.id, argument])),
     [],
   );
 
-  // --------------------------------------------------
-  // Construction des nœuds
-  // --------------------------------------------------
-
+  // Création des nœuds.
   const nodes = useMemo<Node<ArgumentNodeData, "argument">[]>(
     () =>
       argumentsList.map((argument) => ({
         id: argument.id,
         type: "argument",
         position: nodePositions[argument.id],
-        data: {
-          argument,
-        },
+        data: { argument },
       })),
     [],
   );
 
-  // --------------------------------------------------
-  // Évaluation des attaques selon les préférences
-  // de l'acteur sélectionné
-  // --------------------------------------------------
-
+  // Évaluation des attaques selon les préférences de l'acteur.
   const evaluatedAttacks = useMemo(
     () =>
       attacks.map((attack, index) => {
@@ -110,58 +72,39 @@ export default function ArgumentGraph() {
           throw new Error(`Attaque invalide : ${attack.from} -> ${attack.to}`);
         }
 
-        const status = evaluateAttack(attack, actor, argumentsById);
-
         return {
           id: `attack-${index}`,
           attack,
           attacker,
           target,
-          status,
+          status: evaluateAttack(attack, actor, argumentsById),
         };
       }),
     [actor, argumentsById],
   );
 
-  // --------------------------------------------------
-  // Construction des flèches React Flow
-  // --------------------------------------------------
-
+  // Création des arêtes React Flow.
   const edges = useMemo<Edge<VafEdgeData>[]>(
     () =>
       evaluatedAttacks
         .filter(({ status }) => showNeutralized || status === "effective")
         .map(({ id, attack, attacker, target, status }) => {
           const effective = status === "effective";
-
-          const color = effective ? "#dc2626" : "#9ca3af";
+          const selected = id === selectedEdgeId;
+          const color = effective ? "#2563eb" : "#6b7280";
 
           return {
             id,
             source: attack.from,
             target: attack.to,
-
-            type: "smoothstep",
-
-            animated: effective,
-
-            label: effective ? "Effective" : "Neutralisée",
-
-            labelStyle: {
-              fill: color,
-              fontWeight: 600,
-              fontSize: 11,
-            },
-
-            labelBgStyle: {
-              fill: "#ffffff",
-              fillOpacity: 0.9,
-            },
-
+            type: EDGE_STYLE,
+            selectable: true,
+            interactionWidth: 18,
             style: {
               stroke: color,
-              strokeWidth: effective ? 2.5 : 1.5,
+              strokeWidth: selected ? 4 : effective ? 2.5 : 1.5,
               strokeDasharray: effective ? undefined : "6 4",
+              opacity: selected ? 1 : 0.85,
             },
 
             markerEnd: {
@@ -177,12 +120,8 @@ export default function ArgumentGraph() {
             },
           };
         }),
-    [evaluatedAttacks, showNeutralized],
+    [evaluatedAttacks, selectedEdgeId, showNeutralized],
   );
-
-  // --------------------------------------------------
-  // Éléments sélectionnés
-  // --------------------------------------------------
 
   const selectedArgument = selectedArgumentId ? argumentsById.get(selectedArgumentId) : undefined;
 
@@ -190,53 +129,36 @@ export default function ArgumentGraph() {
     ? edges.find((edge) => edge.id === selectedEdgeId)
     : undefined;
 
-  // --------------------------------------------------
-  // Statistiques
-  // --------------------------------------------------
+  // Statistiques globales des attaques pour l'acteur choisi.
+  const { effectiveCount, neutralizedCount } = evaluatedAttacks.reduce(
+    (counts, { status }) => {
+      if (status === "effective") {
+        counts.effectiveCount++;
+      } else {
+        counts.neutralizedCount++;
+      }
 
-  const effectiveCount = evaluatedAttacks.filter(({ status }) => status === "effective").length;
+      return counts;
+    },
+    { effectiveCount: 0, neutralizedCount: 0 },
+  );
 
-  const neutralizedCount = evaluatedAttacks.filter(({ status }) => status === "neutralized").length;
-
-  // --------------------------------------------------
-  // Affichage
-  // --------------------------------------------------
+  function handleActorChange(nextActor: Actor) {
+    setActor(nextActor);
+    setSelectedArgumentId(null);
+    setSelectedEdgeId(null);
+  }
 
   return (
     <main className="vaf-page">
       <header className="vaf-header">
         <div>
           <h1>Débat autour du tramway</h1>
-
           <p>Argumentation fondée sur les valeurs et les préférences des acteurs.</p>
         </div>
 
-        <div className="actor-selector">
-          <label htmlFor="actor-select">Acteur étudié</label>
-
-          <select
-            id="actor-select"
-            value={actor.name}
-            onChange={(event) => {
-              const nextActor = actors.find((item) => item.name === event.target.value);
-
-              if (nextActor) {
-                setActor(nextActor);
-                setSelectedArgumentId(null);
-                setSelectedEdgeId(null);
-              }
-            }}
-          >
-            {actors.map((item) => (
-              <option key={item.name} value={item.name}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <ActorSelector actor={actor} actors={actors} onChange={handleActorChange} />
       </header>
-
-      {/* Statistiques générales */}
 
       <section className="stats">
         <div className="stat-card stat-argc">
@@ -259,70 +181,14 @@ export default function ArgumentGraph() {
           <strong className="neutralized-count">{neutralizedCount}</strong>
         </div>
 
-        <div className="stat-card stat-det">
-          {selectedArgument ? (
-            <>
-              <span className="stat-label">Détails de l'argument</span>
-              <h2>{selectedArgument.title}</h2>
+        <ArgumentDetails
+          argument={selectedArgument}
+          edgeData={selectedEdge?.data}
+          actorName={actor.name}
+        />
 
-              <p>{selectedArgument.text}</p>
-
-              <div className="detail-tags">
-                <span className="value-tag">Valeur : {valueLabels[selectedArgument.value]}</span>
-                <span
-                  className={
-                    selectedArgument.position === "Support"
-                      ? "position-tag support"
-                      : "position-tag oppose"
-                  }
-                >
-                  Position : {selectedArgument.position}
-                </span>
-              </div>
-            </>
-          ) : selectedEdge?.data ? (
-            <>
-              <span className="stat-label">Détails de l'attaque</span>
-              <h2>
-                {selectedEdge.data.fromTitle} &rarr; {selectedEdge.data.toTitle}
-              </h2>
-
-              <p>{selectedEdge.data.justification}</p>
-
-              <p>
-                Statut pour <strong>{actor.name}</strong> :{" "}
-                <strong>
-                  {selectedEdge.data.status === "effective" ? "Effective" : "Neutralisée"}
-                </strong>
-              </p>
-            </>
-          ) : (
-            <>
-              <span className="stat-label">Explorer le débat</span>
-
-              <p>
-                Clique sur un argument pour consulter ses détails, ou sur une flèche pour comprendre
-                la justification d'une attaque.
-              </p>
-            </>
-          )}
-        </div>
-
-        <section className="stat-card stat-actinfo">
-          <span className="stat-label">Information sur l'acteur</span>
-          <h2>{actor.name}</h2>
-
-          <p>Les valeurs sont classées de la plus préférée à la moins préférée.</p>
-
-          <ol>
-            {actor.preferences.map((value) => (
-              <li key={value}>{valueLabels[value]}</li>
-            ))}
-          </ol>
-        </section>
+        <ActorPreferences actor={actor} />
       </section>
-
-      {/* Graphe interactif */}
 
       <section className="graph-container">
         <ReactFlow
@@ -333,6 +199,13 @@ export default function ArgumentGraph() {
           fitViewOptions={{ padding: 0.2 }}
           minZoom={0.15}
           maxZoom={2}
+
+          nodesDraggable={false}
+          nodesConnectable={false}
+          edgesReconnectable={false}
+          deleteKeyCode={null}
+
+          elementsSelectable={true}
           onNodeClick={(_, node) => {
             setSelectedArgumentId(node.id as ArgumentId);
             setSelectedEdgeId(null);
@@ -348,11 +221,8 @@ export default function ArgumentGraph() {
         >
           <Background gap={20} />
           <Controls />
-          <MiniMap pannable zoomable />
         </ReactFlow>
       </section>
-
-      {/* Légende et options d'affichage */}
 
       <section className="graph-toolbar">
         <span>

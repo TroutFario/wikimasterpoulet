@@ -17,14 +17,14 @@ export default function ArgumentNode({
   return (
     <div
       className={`argument-node ${
-        argument.position === "Support" ? "support" : "oppose"
+        argument.position === "Soutient" ? "support" : "oppose"
       } ${selected ? "selected" : ""}`}
     >
       <Handle type="target" position={Position.Left} />
 
       <div className="argument-node-top">
         <span className="argument-position">
-          {argument.position === "Support" ? "FAVORABLE" : "DÉFAVORABLE"}
+          {argument.position === "Soutient" ? "FAVORABLE" : "DÉFAVORABLE"}
         </span>
 
         <span className="argument-value">

@@ -1,4 +1,7 @@
-export type PolicyPosition = "Support" | "Oppose";
+import ArgumentNode from "../components/ArgumentNode";
+import type { AttackStatus } from "../logic/evaluateAttack";
+
+export type PolicyPosition = "Soutient" | "Opposé";
 
 export type Value =
   | "Environment"
@@ -39,3 +42,22 @@ export interface Actor {
   name: string;
   preferences: Value[];
 }
+
+// --------------------------------------------------
+// Types utilisés par React Flow
+// --------------------------------------------------
+
+export type ArgumentNodeData = {
+  argument: Argument;
+};
+
+export type VafEdgeData = {
+  status: AttackStatus;
+  justification: string;
+  fromTitle: string;
+  toTitle: string;
+};
+
+export const nodeTypes = {
+  argument: ArgumentNode,
+};
